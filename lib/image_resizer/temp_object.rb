@@ -59,7 +59,7 @@ module ImageResizer
       else
         raise ArgumentError, "#{self.class.name} must be initialized with a String, a Pathname, a File, a Tempfile, another TempObject, something that responds to .tempfile, or something that responds to .path"
       end
-      
+
       @tempfile.close if @tempfile
 
       # Original filename
@@ -68,19 +68,19 @@ module ImageResizer
       elsif @pathname
         @pathname.basename.to_s
       end
-      
+
       # Meta
       @meta = meta
       @meta[:name] ||= @original_filename if @original_filename
     end
-    
+
     attr_reader :original_filename
     attr_accessor :meta
-    
+
     def name
       meta[:name]
     end
-    
+
     def name=(name)
       meta[:name] = name
     end
@@ -178,11 +178,11 @@ module ImageResizer
     def get_data
       @data
     end
-    
+
     def get_pathname
       @pathname
     end
-    
+
     def get_tempfile
       @tempfile
     end

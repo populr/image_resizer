@@ -39,9 +39,34 @@ module ImageResizer
       y       = "#{opts[:y] || 0}"
       y = '+' + y unless y[/^[+-]/]
       repage  = opts[:repage] == false ? '' : '+repage'
-      resize  = opts[:resize]
 
-      convert(temp_object, "#{"-resize #{resize} " if resize}#{"-gravity #{gravity} " if gravity}-crop #{width}x#{height}#{x}#{y} #{repage}")
+      resize = opts[:resize] ? "-resize #{opts[:resize]} " : ''
+      gravity = gravity ? "-gravity #{gravity} " : ''
+
+      convert(temp_object, "#{resize}#{gravity}-crop #{width}x#{height}#{x}#{y} #{repage}")
+    end
+
+    def crop_to_frame_and_scale(temp_object, options)
+      analyzer = ImageResizer::Analyzer.new
+
+      desired_width = options[:width]
+      desired_height = options[:height]
+
+      upper_left_x_percent = options[:upper_left].first.sub('%', '').to_i * 0.01
+      upper_left_y_percent = options[:upper_left].last.sub('%', '').to_i * 0.01
+
+      lower_right_x_percent = options[:lower_right].first.sub('%', '').to_i * 0.01
+      lower_right_y_percent = options[:lower_right].last.sub('%', '').to_i * 0.01
+
+      original_width = analyzer.width(temp_object)
+      original_height = analyzer.height(temp_object)
+
+      upper_left_x = (original_width * upper_left_x_percent).round
+      upper_left_y = (original_height * upper_left_y_percent).round
+      frame_width = (original_width * (lower_right_x_percent - upper_left_x_percent)).round
+      frame_height = (original_height * (lower_right_y_percent - upper_left_y_percent)).round
+
+      convert(temp_object, "-crop #{frame_width}x#{frame_height}+#{upper_left_x}+#{upper_left_y} -resize #{desired_width}x#{desired_height} +repage")
     end
 
     def flip(temp_object)

@@ -131,6 +131,20 @@ describe ImageResizer::Processor do
 
   end
 
+
+  describe "#crop_to_frame_and_scale(:upper_left => [x%, y%], :lower_right => [x%, y%], :width => w, :height => h" do
+    it "should call #crop with the :x & :y and :width & :height expressed in pixels and :width and :height determined by the frame bounds (not the width and height we pass in), and :resize expressed as widthxheight" do
+      # original is 280px x 355px
+      @processor.should_receive(:convert).with(@image, "-crop 140x178+56+107 -resize 70x89 +repage")
+      @processor.crop_to_frame_and_scale(@image,
+                                          :upper_left => ['20%', '30%'],
+                                          :lower_right => ['70%', '80%'],
+                                          :width => 70,
+                                          :height => 89,
+                                        )
+    end
+  end
+
   describe "greyscale" do
     it "should not raise an error" do
       # Bit tricky to test
