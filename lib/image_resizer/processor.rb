@@ -49,14 +49,14 @@ module ImageResizer
     def crop_to_frame_and_scale(temp_object, options)
       analyzer = ImageResizer::Analyzer.new
 
-      desired_width = options[:width]
-      desired_height = options[:height]
+      desired_width = options[:width].to_i
+      desired_height = options[:height].to_i
 
-      upper_left_x_percent = options[:upper_left].first.sub('%', '').to_i * 0.01
-      upper_left_y_percent = options[:upper_left].last.sub('%', '').to_i * 0.01
+      upper_left_x_percent = options[:upper_left].first
+      upper_left_y_percent = options[:upper_left].last
 
-      lower_right_x_percent = options[:lower_right].first.sub('%', '').to_i * 0.01
-      lower_right_y_percent = options[:lower_right].last.sub('%', '').to_i * 0.01
+      lower_right_x_percent = options[:lower_right].first
+      lower_right_y_percent = options[:lower_right].last
 
       original_width = analyzer.width(temp_object)
       original_height = analyzer.height(temp_object)
@@ -65,6 +65,17 @@ module ImageResizer
       upper_left_y = (original_height * upper_left_y_percent).round
       frame_width = (original_width * (lower_right_x_percent - upper_left_x_percent)).round
       frame_height = (original_height * (lower_right_y_percent - upper_left_y_percent)).round
+
+      if desired_width == 0 && frame_height > 0
+        ratio = frame_width.to_f / frame_height
+        desired_width = (desired_height * ratio).round
+      end
+
+      if desired_height == 0 && frame_width > 0
+        ratio = frame_height.to_f / frame_width
+        desired_height = (desired_width * ratio).round
+      end
+
 
       convert(temp_object, "-crop #{frame_width}x#{frame_height}+#{upper_left_x}+#{upper_left_y} -resize #{desired_width}x#{desired_height} +repage")
     end

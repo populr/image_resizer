@@ -137,12 +137,112 @@ describe ImageResizer::Processor do
       # original is 280px x 355px
       @processor.should_receive(:convert).with(@image, "-crop 140x178+56+107 -resize 70x89 +repage")
       @processor.crop_to_frame_and_scale(@image,
-                                          :upper_left => ['20%', '30%'],
-                                          :lower_right => ['70%', '80%'],
+                                          :upper_left => [0.20, 0.30],
+                                          :lower_right => [0.70, 0.80],
                                           :width => 70,
-                                          :height => 89,
+                                          :height => 89
                                         )
     end
+
+    context "when width is 0, nil, or not present as an option" do
+      it "should use the ratio defined by the upper_left and lower_right points to determine the width from the height" do
+        # original is 280px x 355px
+        @processor.should_receive(:convert).with(@image, "-crop 140x178+56+107 -resize 70x89 +repage").exactly(3).times
+        @processor.crop_to_frame_and_scale(@image,
+                                            :upper_left => [0.20, 0.30],
+                                            :lower_right => [0.70, 0.80],
+                                            :width => 0,
+                                            :height => 89
+                                          )
+
+        @processor.crop_to_frame_and_scale(@image,
+                                            :upper_left => [0.20, 0.30],
+                                            :lower_right => [0.70, 0.80],
+                                            :width => nil,
+                                            :height => 89
+                                          )
+
+        @processor.crop_to_frame_and_scale(@image,
+                                            :upper_left => [0.20, 0.30],
+                                            :lower_right => [0.70, 0.80],
+                                            :height => 89
+                                          )
+      end
+
+    end
+
+    context "when height is 0, nil, or not present as an option" do
+      it "should use the ratio defined by the upper_left and lower_right points to determine the height from the width" do
+        # original is 280px x 355px
+        @processor.should_receive(:convert).with(@image, "-crop 140x178+56+107 -resize 70x89 +repage").exactly(3).times
+        @processor.crop_to_frame_and_scale(@image,
+                                            :upper_left => [0.20, 0.30],
+                                            :lower_right => [0.70, 0.80],
+                                            :width => 70,
+                                            :height => 0
+                                          )
+
+        @processor.crop_to_frame_and_scale(@image,
+                                            :upper_left => [0.20, 0.30],
+                                            :lower_right => [0.70, 0.80],
+                                            :width => 70,
+                                            :height => nil
+                                          )
+
+        @processor.crop_to_frame_and_scale(@image,
+                                            :upper_left => [0.20, 0.30],
+                                            :lower_right => [0.70, 0.80],
+                                            :width => 70
+                                          )
+      end
+    end
+
+    context "when both width and heigth are 0 or nil" do
+      it "should not raise an exception" do
+        lambda {
+          @processor.crop_to_frame_and_scale(@image,
+                                              :upper_left => [0.20, 0.30],
+                                              :lower_right => [0.70, 0.80],
+                                              :width => 0,
+                                              :height => 0
+                                            )
+        }.should_not raise_error
+
+        lambda {
+          @processor.crop_to_frame_and_scale(@image,
+                                              :upper_left => [0.20, 0.30],
+                                              :lower_right => [0.70, 0.80]
+                                            )
+        }.should_not raise_error
+      end
+
+      context "when the frame specifies a width of 0" do
+        it "should not raise an exception" do
+          lambda {
+            @processor.crop_to_frame_and_scale(@image,
+                                                :upper_left => [0.20, 0.30],
+                                                :lower_right => [0.20, 0.80],
+                                                :width => 0,
+                                                :height => 0
+                                              )
+          }.should_not raise_error
+        end
+      end
+
+      context "when the frame specifies a height of 0" do
+        it "should not raise an exception" do
+          lambda {
+            @processor.crop_to_frame_and_scale(@image,
+                                                :upper_left => [0.20, 0.30],
+                                                :lower_right => [0.70, 0.30],
+                                                :width => 0,
+                                                :height => 0
+                                              )
+          }.should_not raise_error
+        end
+      end
+    end
+
   end
 
   describe "greyscale" do
