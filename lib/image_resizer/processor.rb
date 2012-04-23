@@ -46,6 +46,61 @@ module ImageResizer
       convert(temp_object, "#{resize}#{gravity}-crop #{width}x#{height}#{x}#{y} #{repage}")
     end
 
+    def crop_around_point(temp_object, options)
+      analyzer = ImageResizer::Analyzer.new
+
+      desired_width = options[:width].to_i
+      desired_height = options[:height].to_i
+      desired_ratio = desired_height > 0 ? desired_width.to_f / desired_height : 0
+
+      original_width = analyzer.width(temp_object)
+      original_height = analyzer.height(temp_object)
+      original_ratio = original_width.to_f / original_height
+
+      if desired_ratio > original_ratio
+        width = original_width
+        height = width / desired_ratio
+      else
+        height = original_height
+        width = height * desired_ratio
+      end
+
+      focus_x = options[:point][0] * original_width
+      focus_y = options[:point][1] * original_height
+
+      half_width = width * 0.5
+      half_height = height * 0.5
+
+      upper_left_x = [focus_x - half_width, 0].max
+      upper_left_y = [focus_y - half_height, 0].max
+
+      lower_right_x = upper_left_x + width
+      lower_right_y = upper_left_y + height
+
+      x_offset = [lower_right_x - original_width, 0].max
+      y_offset = [lower_right_y - original_height, 0].max
+
+      upper_left_x -= x_offset
+      upper_left_y -= y_offset
+
+      lower_right_x -= x_offset
+      lower_right_y -= y_offset
+
+      upper_left_x_percent = upper_left_x / original_width
+      upper_left_y_percent = upper_left_y / original_height
+
+      lower_right_x_percent = lower_right_x / original_width
+      lower_right_y_percent = lower_right_y / original_height
+
+      crop_to_frame_and_scale(temp_object,
+                              :upper_left => [upper_left_x_percent, upper_left_y_percent],
+                              :lower_right => [lower_right_x_percent, lower_right_y_percent],
+                              :width => desired_width,
+                              :height => desired_height
+                              )
+    end
+
+
     def crop_to_frame_and_scale(temp_object, options)
       analyzer = ImageResizer::Analyzer.new
 

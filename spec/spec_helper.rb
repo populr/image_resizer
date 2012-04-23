@@ -7,6 +7,9 @@ $LOAD_PATH.unshift(File.dirname(__FILE__))
 require 'rspec'
 require 'image_resizer'
 require 'fileutils'
+require 'pry'
+require 'pry-nav'
+require 'pry-stack_explorer'
 
 # Requires supporting files with custom matchers and macros, etc,
 Dir["#{File.dirname(__FILE__)}/support/**/*.rb"].each {|f| require f}
