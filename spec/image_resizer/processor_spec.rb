@@ -131,7 +131,7 @@ describe ImageResizer::Processor do
 
   end
 
-  describe "#crop_around_point(:point => [x%, y%], :width => w, :height => h" do
+  describe "#resize_and_crop_around_point(:point => [x%, y%], :width => w, :height => h" do
     context "when the source image is portrait, but the requested ratio is landscape" do
       it "should call crop_to_frame_and_scale with a frame that is vertically centered on the focus point" do
         # original is 280px x 355px
@@ -140,7 +140,7 @@ describe ImageResizer::Processor do
                                                                   :height => 60,
                                                                   :upper_left => [0.0, 0.5 - 280 * 0.6 / 355 / 2.0],
                                                                   :lower_right => [1.0, 0.5 + 280 * 0.6 / 355 / 2.0])
-        @processor.crop_around_point(@image,
+        @processor.resize_and_crop_around_point(@image,
                                             :point => [0.5, 0.5],
                                             :width => 100,
                                             :height => 60
@@ -155,7 +155,7 @@ describe ImageResizer::Processor do
                                                                     :height => 60,
                                                                     :upper_left => [0.0, 0.0],
                                                                     :lower_right => [1.0, 280 * 0.6 / 355])
-          @processor.crop_around_point(@image,
+          @processor.resize_and_crop_around_point(@image,
                                               :point => [0.5, 0.1],
                                               :width => 100,
                                               :height => 60
@@ -171,7 +171,7 @@ describe ImageResizer::Processor do
                                                                     :height => 60,
                                                                     :upper_left => [0.0, 1 - 280 * 0.6 / 355],
                                                                     :lower_right => [1.0, 1.0])
-          @processor.crop_around_point(@image,
+          @processor.resize_and_crop_around_point(@image,
                                               :point => [0.5, 0.9],
                                               :width => 100,
                                               :height => 60
@@ -192,7 +192,7 @@ describe ImageResizer::Processor do
                                                                   :height => 100,
                                                                   :upper_left => [0.5 - 280 * 0.6 / 355 / 2.0, 0.0],
                                                                   :lower_right => [0.5 + 280 * 0.6 / 355 / 2.0, 1.0])
-        @processor.crop_around_point(@image,
+        @processor.resize_and_crop_around_point(@image,
                                             :point => [0.5, 0.5],
                                             :width => 60,
                                             :height => 100
@@ -207,7 +207,7 @@ describe ImageResizer::Processor do
                                                                     :height => 100,
                                                                     :upper_left => [0.0, 0.0],
                                                                     :lower_right => [280 * 0.6 / 355, 1.0])
-          @processor.crop_around_point(@image,
+          @processor.resize_and_crop_around_point(@image,
                                               :point => [0.1, 0.5],
                                               :width => 60,
                                               :height => 100
@@ -223,7 +223,7 @@ describe ImageResizer::Processor do
                                                                     :height => 100,
                                                                     :upper_left => [1.0 - 280 * 0.6 / 355, 0.0],
                                                                     :lower_right => [1.0, 1.0])
-          @processor.crop_around_point(@image,
+          @processor.resize_and_crop_around_point(@image,
                                               :point => [0.9, 0.5],
                                               :width => 60,
                                               :height => 100
@@ -235,7 +235,7 @@ describe ImageResizer::Processor do
     context "when the specified width is 0" do
       it "should not raise an exception" do
         lambda {
-          @processor.crop_around_point(@image,
+          @processor.resize_and_crop_around_point(@image,
                                         :point => [0.20, 0.30],
                                         :width => 0,
                                         :height => 80
@@ -247,7 +247,7 @@ describe ImageResizer::Processor do
     context "when the specified height is 0" do
       it "should not raise an exception" do
         lambda {
-          @processor.crop_around_point(@image,
+          @processor.resize_and_crop_around_point(@image,
                                         :point => [0.20, 0.30],
                                         :width => 80,
                                         :height => 0

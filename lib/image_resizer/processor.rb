@@ -46,7 +46,7 @@ module ImageResizer
       convert(temp_object, "#{resize}#{gravity}-crop #{width}x#{height}#{x}#{y} #{repage}")
     end
 
-    def crop_around_point(temp_object, options)
+    def resize_and_crop_around_point(temp_object, options)
       analyzer = ImageResizer::Analyzer.new
 
       desired_width = options[:width].to_i

@@ -21,9 +21,18 @@ lower_right = [0.75, 0.95]
 width = 320
 # width = 160
 
-processed = processor.crop_to_frame_and_scale(temp_object,
-                                  :upper_left => upper_left,
-                                  :lower_right => lower_right,
-                                  :width => width
+# processed = processor.crop_to_frame_and_scale(temp_object,
+#                                   :upper_left => upper_left,
+#                                   :lower_right => lower_right,
+#                                   :width => width
+#                                   )
+
+height = 400
+point = [0.9, 0.1]
+processed = processor.resize_and_crop_around_point(temp_object,
+                                  :point => point,
+                                  :width => width,
+                                  :height => height
                                   )
+
 File.open(modified_path, 'wb') { |f| f.write(File.read(processed)) }
