@@ -21,7 +21,7 @@ lower_right = [0.75, 0.95]
 width = 320
 # width = 160
 
-# processed = processor.crop_to_frame_and_scale(temp_object,
+# processed = processor.crop_to_frame_and_resize(temp_object,
 #                                   :upper_left => upper_left,
 #                                   :lower_right => lower_right,
 #                                   :width => width

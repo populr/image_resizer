@@ -92,7 +92,7 @@ module ImageResizer
       lower_right_x_percent = lower_right_x / original_width
       lower_right_y_percent = lower_right_y / original_height
 
-      crop_to_frame_and_scale(temp_object,
+      crop_to_frame_and_resize(temp_object,
                               :upper_left => [upper_left_x_percent, upper_left_y_percent],
                               :lower_right => [lower_right_x_percent, lower_right_y_percent],
                               :width => desired_width,
@@ -101,7 +101,7 @@ module ImageResizer
     end
 
 
-    def crop_to_frame_and_scale(temp_object, options)
+    def crop_to_frame_and_resize(temp_object, options)
       analyzer = ImageResizer::Analyzer.new
 
       desired_width = options[:width].to_i

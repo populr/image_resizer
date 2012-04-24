@@ -1,8 +1,47 @@
-Rationale
----------
+ImageResizer
+============
 
-A project we are working on needed the ability to crop and resize images. Paperclip and Dragonfly both perform scaling and cropping using ImageMagick, but both do so as part of a larger project. We initially included Dragonfly, and only used the analyze and process objects, but it felt wrong to use the tool in a way it wasn't intended. Then came the day when we needed more control over the cropping options that came with Dragonfly. So over the Hack Nashville weekend, we pulled the ImageMagick specific parts out of Dragonfly, got the specs to pass, and then added new specs and new cropping options
+Provides an interface to ImageMagick for extracting image information and resizing / cropping.
 
-Dragonfly did a good job of modularizing the ImageMagick calls, so this project is essentially the Dragonfly ImageMagick modules abstracted into a more general purpose gem.
+
+Usage
+=====
+
+In your Gemfile:
+
+    gem 'image_resizer'
+
+Example:
+
+    image = ImageResizer::TempObject.new(File.new(path_to_image_file))
+    processor = ImageResizer::Processor.new
+
+    # crop the original image to a frame and resize the result
+    upper_left = [0.25, 0.15] # 25% from the left, 15% from the top 
+    lower_right = [0.75, 0.95] # 75% from the left, 95% from the top
+    width = 320
+    resized_file = processor.crop_to_frame_and_resize(temp_object,
+                                      :upper_left => upper_left,
+                                      :lower_right => lower_right,
+                                      :width => width
+                                      )
+
+    # crop the original image around a point and resize the result
+    point = [0.8, 0.3] # 80% from the left, 30% from the top
+    width = 320
+    height = 400
+    resized_file = processor.resize_and_crop_around_point(temp_object,
+                                      :point => point,
+                                      :width => width,
+                                      :height => height
+                                      )
+    File.open(output_file, 'wb') { |f| f.write(File.read(processed)) }
+
+
+Credits
+=======
+
+This project is heavily indebted to [Dragonfly](https://github.com/markevans/dragonfly). We needed the ability to crop and resize images, but there didn't appear to be any gems devoted to just that. Paperclip and Dragonfly both perform scaling and cropping using ImageMagick, but both do so as part of a larger project. So we pulled the ImageMagick specific parts out of Dragonfly, added new specs and cropping options, and are releasing the result as a dedicated image resizing gem.
+
 
 

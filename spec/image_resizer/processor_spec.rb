@@ -133,9 +133,9 @@ describe ImageResizer::Processor do
 
   describe "#resize_and_crop_around_point(:point => [x%, y%], :width => w, :height => h" do
     context "when the source image is portrait, but the requested ratio is landscape" do
-      it "should call crop_to_frame_and_scale with a frame that is vertically centered on the focus point" do
+      it "should call crop_to_frame_and_resize with a frame that is vertically centered on the focus point" do
         # original is 280px x 355px
-        @processor.should_receive(:crop_to_frame_and_scale ).with(@image,
+        @processor.should_receive(:crop_to_frame_and_resize ).with(@image,
                                                                   :width => 100,
                                                                   :height => 60,
                                                                   :upper_left => [0.0, 0.5 - 280 * 0.6 / 355 / 2.0],
@@ -148,9 +148,9 @@ describe ImageResizer::Processor do
       end
 
       context "when the focus point is too close to the top to be the vertical center" do
-        it "should call crop_to_frame_and_scale with a frame that is pinned at the top of the image" do
+        it "should call crop_to_frame_and_resize with a frame that is pinned at the top of the image" do
           # original is 280px x 355px
-          @processor.should_receive(:crop_to_frame_and_scale ).with(@image,
+          @processor.should_receive(:crop_to_frame_and_resize ).with(@image,
                                                                     :width => 100,
                                                                     :height => 60,
                                                                     :upper_left => [0.0, 0.0],
@@ -164,9 +164,9 @@ describe ImageResizer::Processor do
       end
 
       context "when the focus point is too close to the bottom to be the vertical center" do
-        it "should call crop_to_frame_and_scale with a frame that is pinned at the bottom of the image" do
+        it "should call crop_to_frame_and_resize with a frame that is pinned at the bottom of the image" do
           # original is 280px x 355px
-          @processor.should_receive(:crop_to_frame_and_scale ).with(@image,
+          @processor.should_receive(:crop_to_frame_and_resize ).with(@image,
                                                                     :width => 100,
                                                                     :height => 60,
                                                                     :upper_left => [0.0, 1 - 280 * 0.6 / 355],
@@ -185,9 +185,9 @@ describe ImageResizer::Processor do
         @image = ImageResizer::TempObject.new(SAMPLES_DIR.join('landscape.png')) # 355x280
       end
 
-      it "should call crop_to_frame_and_scale with a frame that is vertically centered on the focus point" do
+      it "should call crop_to_frame_and_resize with a frame that is vertically centered on the focus point" do
         # original is 355px x 280px
-        @processor.should_receive(:crop_to_frame_and_scale ).with(@image,
+        @processor.should_receive(:crop_to_frame_and_resize ).with(@image,
                                                                   :width => 60,
                                                                   :height => 100,
                                                                   :upper_left => [0.5 - 280 * 0.6 / 355 / 2.0, 0.0],
@@ -200,9 +200,9 @@ describe ImageResizer::Processor do
       end
 
       context "when the focus point is too close to the left to be the vertical center" do
-        it "should call crop_to_frame_and_scale with a frame that is pinned at the left of the image" do
+        it "should call crop_to_frame_and_resize with a frame that is pinned at the left of the image" do
           # original is 355px x 280px
-          @processor.should_receive(:crop_to_frame_and_scale ).with(@image,
+          @processor.should_receive(:crop_to_frame_and_resize ).with(@image,
                                                                     :width => 60,
                                                                     :height => 100,
                                                                     :upper_left => [0.0, 0.0],
@@ -216,9 +216,9 @@ describe ImageResizer::Processor do
       end
 
       context "when the focus point is too close to the right to be the vertical center" do
-        it "should call crop_to_frame_and_scale with a frame that is pinned at the right of the image" do
+        it "should call crop_to_frame_and_resize with a frame that is pinned at the right of the image" do
           # original is 355px x 280px
-          @processor.should_receive(:crop_to_frame_and_scale ).with(@image,
+          @processor.should_receive(:crop_to_frame_and_resize ).with(@image,
                                                                     :width => 60,
                                                                     :height => 100,
                                                                     :upper_left => [1.0 - 280 * 0.6 / 355, 0.0],
@@ -257,11 +257,11 @@ describe ImageResizer::Processor do
     end
   end
 
-  describe "#crop_to_frame_and_scale(:upper_left => [x%, y%], :lower_right => [x%, y%], :width => w, :height => h" do
+  describe "#crop_to_frame_and_resize(:upper_left => [x%, y%], :lower_right => [x%, y%], :width => w, :height => h" do
     it "should call #crop with the :x & :y and :width & :height expressed in pixels and :width and :height determined by the frame bounds (not the width and height we pass in), and :resize expressed as widthxheight" do
       # original is 280px x 355px
       @processor.should_receive(:convert).with(@image, "-crop 140x178+56+107 -resize 70x89 +repage")
-      @processor.crop_to_frame_and_scale(@image,
+      @processor.crop_to_frame_and_resize(@image,
                                           :upper_left => [0.20, 0.30],
                                           :lower_right => [0.70, 0.80],
                                           :width => 70,
@@ -273,21 +273,21 @@ describe ImageResizer::Processor do
       it "should use the ratio defined by the upper_left and lower_right points to determine the width from the height" do
         # original is 280px x 355px
         @processor.should_receive(:convert).with(@image, "-crop 140x178+56+107 -resize 70x89 +repage").exactly(3).times
-        @processor.crop_to_frame_and_scale(@image,
+        @processor.crop_to_frame_and_resize(@image,
                                             :upper_left => [0.20, 0.30],
                                             :lower_right => [0.70, 0.80],
                                             :width => 0,
                                             :height => 89
                                           )
 
-        @processor.crop_to_frame_and_scale(@image,
+        @processor.crop_to_frame_and_resize(@image,
                                             :upper_left => [0.20, 0.30],
                                             :lower_right => [0.70, 0.80],
                                             :width => nil,
                                             :height => 89
                                           )
 
-        @processor.crop_to_frame_and_scale(@image,
+        @processor.crop_to_frame_and_resize(@image,
                                             :upper_left => [0.20, 0.30],
                                             :lower_right => [0.70, 0.80],
                                             :height => 89
@@ -300,21 +300,21 @@ describe ImageResizer::Processor do
       it "should use the ratio defined by the upper_left and lower_right points to determine the height from the width" do
         # original is 280px x 355px
         @processor.should_receive(:convert).with(@image, "-crop 140x178+56+107 -resize 70x89 +repage").exactly(3).times
-        @processor.crop_to_frame_and_scale(@image,
+        @processor.crop_to_frame_and_resize(@image,
                                             :upper_left => [0.20, 0.30],
                                             :lower_right => [0.70, 0.80],
                                             :width => 70,
                                             :height => 0
                                           )
 
-        @processor.crop_to_frame_and_scale(@image,
+        @processor.crop_to_frame_and_resize(@image,
                                             :upper_left => [0.20, 0.30],
                                             :lower_right => [0.70, 0.80],
                                             :width => 70,
                                             :height => nil
                                           )
 
-        @processor.crop_to_frame_and_scale(@image,
+        @processor.crop_to_frame_and_resize(@image,
                                             :upper_left => [0.20, 0.30],
                                             :lower_right => [0.70, 0.80],
                                             :width => 70
@@ -325,7 +325,7 @@ describe ImageResizer::Processor do
     context "when both width and heigth are 0 or nil" do
       it "should not raise an exception" do
         lambda {
-          @processor.crop_to_frame_and_scale(@image,
+          @processor.crop_to_frame_and_resize(@image,
                                               :upper_left => [0.20, 0.30],
                                               :lower_right => [0.70, 0.80],
                                               :width => 0,
@@ -334,7 +334,7 @@ describe ImageResizer::Processor do
         }.should_not raise_error
 
         lambda {
-          @processor.crop_to_frame_and_scale(@image,
+          @processor.crop_to_frame_and_resize(@image,
                                               :upper_left => [0.20, 0.30],
                                               :lower_right => [0.70, 0.80]
                                             )
@@ -344,7 +344,7 @@ describe ImageResizer::Processor do
       context "when the frame specifies a width of 0" do
         it "should not raise an exception" do
           lambda {
-            @processor.crop_to_frame_and_scale(@image,
+            @processor.crop_to_frame_and_resize(@image,
                                                 :upper_left => [0.20, 0.30],
                                                 :lower_right => [0.20, 0.80],
                                                 :width => 0,
@@ -357,7 +357,7 @@ describe ImageResizer::Processor do
       context "when the frame specifies a height of 0" do
         it "should not raise an exception" do
           lambda {
-            @processor.crop_to_frame_and_scale(@image,
+            @processor.crop_to_frame_and_resize(@image,
                                                 :upper_left => [0.20, 0.30],
                                                 :lower_right => [0.70, 0.30],
                                                 :width => 0,
