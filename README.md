@@ -16,6 +16,15 @@ Example:
     image = ImageResizer::TempObject.new(File.new(path_to_image_file))
     processor = ImageResizer::Processor.new
 
+    # resize to fit the specified width, maintaining the original ratio
+    resized_file = processor.resize(temp_object, :width => 320)
+
+    # resize to fit the specified height, maintaining the original ratio
+    resized_file = processor.resize(temp_object, :height => 240)
+
+    # resize to the specified dimensions, cropping around the center to avoid stretching
+    resized_file = processor.resize(temp_object, :width => 320, :height => 240)
+
     # crop the original image to a frame and resize the result
     upper_left = [0.25, 0.15] # 25% from the left, 15% from the top 
     lower_right = [0.75, 0.95] # 75% from the left, 95% from the top
