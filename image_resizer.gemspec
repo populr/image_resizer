@@ -5,13 +5,13 @@
 
 Gem::Specification.new do |s|
   s.name = "image_resizer"
-  s.version = "0.1.0"
+  s.version = "0.1.1"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Daniel Nelson"]
   s.date = "2012-04-24"
-  s.description = "Image resizing gem (requires ImageMagick)"
-  s.email = "daniel@populr.me"
+  s.description = "TODO: longer description of your gem"
+  s.email = "dnelson@centresource.com"
   s.extra_rdoc_files = [
     "LICENSE",
     "README.md"
@@ -25,6 +25,8 @@ Gem::Specification.new do |s|
     "README.md",
     "Rakefile",
     "VERSION",
+    "demo.rb",
+    "image_resizer.gemspec",
     "lib/image_resizer.rb",
     "lib/image_resizer/analyzer.rb",
     "lib/image_resizer/configurable.rb",
@@ -34,13 +36,36 @@ Gem::Specification.new do |s|
     "lib/image_resizer/processor.rb",
     "lib/image_resizer/shell.rb",
     "lib/image_resizer/temp_object.rb",
-    "lib/image_resizer/utils.rb"
+    "lib/image_resizer/utils.rb",
+    "samples/DSC02119.JPG",
+    "samples/a.jp2",
+    "samples/beach.jpg",
+    "samples/beach.png",
+    "samples/egg.png",
+    "samples/landscape.png",
+    "samples/round.gif",
+    "samples/sample.docx",
+    "samples/taj.jpg",
+    "samples/white pixel.png",
+    "spec/image_resizer/analyzer_spec.rb",
+    "spec/image_resizer/configurable_spec.rb",
+    "spec/image_resizer/encoder_spec.rb",
+    "spec/image_resizer/has_filename_spec.rb",
+    "spec/image_resizer/loggable_spec.rb",
+    "spec/image_resizer/processor_spec.rb",
+    "spec/image_resizer/shell_spec.rb",
+    "spec/image_resizer/temp_object_spec.rb",
+    "spec/spec_helper.rb",
+    "spec/support/argument_matchers.rb",
+    "spec/support/image_matchers.rb",
+    "spec/support/simple_matchers.rb",
+    "tmp/test_file"
   ]
-  s.homepage = "http://github.com/populr/image_resizer"
+  s.homepage = "http://github.com/dnelson-cs/image_resizer"
   s.licenses = ["MIT"]
   s.require_paths = ["lib"]
   s.rubygems_version = "1.8.10"
-  s.summary = "Image resizing gem (requires ImageMagick)"
+  s.summary = "TODO: one-line summary of your gem"
 
   if s.respond_to? :specification_version then
     s.specification_version = 3
