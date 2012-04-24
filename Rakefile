@@ -15,16 +15,32 @@ require 'jeweler'
 Jeweler::Tasks.new do |gem|
   # gem is a Gem::Specification... see http://docs.rubygems.org/read/chapter/20 for more options
   gem.name = "image_resizer"
-  gem.homepage = "http://github.com/dnelson-cs/image_resizer"
+  gem.homepage = "http://github.com/populr/image_resizer"
   gem.license = "MIT"
-  gem.summary = %Q{TODO: one-line summary of your gem}
-  gem.description = %Q{TODO: longer description of your gem}
-  gem.email = "dnelson@centresource.com"
+  gem.summary = %Q{Image resizing gem (requires ImageMagick)}
+  gem.description = %Q{Image resizing gem (requires ImageMagick)}
+  gem.email = "daniel@populr.me"
   gem.authors = ["Daniel Nelson"]
   # dependencies defined in Gemfile
+  gem.files.exclude 'spec'
+  gem.files.exclude 'samples'
+  gem.files.exclude 'tmp'
+  gem.files.exclude 'demo.rb'
 end
 Jeweler::RubygemsDotOrgTasks.new
 
+require 'rspec/core'
+require 'rspec/core/rake_task'
+RSpec::Core::RakeTask.new(:spec) do |spec|
+  spec.pattern = FileList['spec/**/*_spec.rb']
+end
+
+RSpec::Core::RakeTask.new(:rcov) do |spec|
+  spec.pattern = 'spec/**/*_spec.rb'
+  spec.rcov = true
+end
+
+task :default => :spec
 
 require 'rdoc/task'
 Rake::RDocTask.new do |rdoc|
