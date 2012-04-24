@@ -44,7 +44,7 @@ Example:
                                       :width => width,
                                       :height => height
                                       )
-    File.open(output_file, 'wb') { |f| f.write(File.read(processed)) }
+    File.open(path_to_output_file, 'wb') { |f| f.write(File.read(processed)) }
 
 
 Credits
