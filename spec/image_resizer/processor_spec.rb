@@ -7,34 +7,34 @@ describe ImageResizer::Processor do
     @processor = ImageResizer::Processor.new
   end
 
-  describe "resize" do
+  describe "_resize" do
 
     it "should work correctly with xNN" do
-      image = @processor.resize(@image, 'x30')
+      image = @processor._resize(@image, 'x30')
       image.should have_width(24)
       image.should have_height(30)
     end
 
     it "should work correctly with NNx" do
-      image = @processor.resize(@image, '30x')
+      image = @processor._resize(@image, '30x')
       image.should have_width(30)
       image.should have_height(38)
     end
 
     it "should work correctly with NNxNN" do
-      image = @processor.resize(@image, '30x30')
+      image = @processor._resize(@image, '30x30')
       image.should have_width(24)
       image.should have_height(30)
     end
 
     it "should work correctly with NNxNN!" do
-      image = @processor.resize(@image, '30x30!')
+      image = @processor._resize(@image, '30x30!')
       image.should have_width(30)
       image.should have_height(30)
     end
 
     it "should work correctly with NNxNN%" do
-      image = @processor.resize(@image, '25x50%')
+      image = @processor._resize(@image, '25x50%')
       image.should have_width(70)
       image.should have_height(178)
     end
@@ -42,13 +42,13 @@ describe ImageResizer::Processor do
     describe "NNxNN>" do
 
       it "should not resize if the image is smaller than specified" do
-        image = @processor.resize(@image, '1000x1000>')
+        image = @processor._resize(@image, '1000x1000>')
         image.should have_width(280)
         image.should have_height(355)
       end
 
       it "should resize if the image is larger than specified" do
-        image = @processor.resize(@image, '30x30>')
+        image = @processor._resize(@image, '30x30>')
         image.should have_width(24)
         image.should have_height(30)
       end
@@ -58,13 +58,13 @@ describe ImageResizer::Processor do
     describe "NNxNN<" do
 
       it "should not resize if the image is larger than specified" do
-        image = @processor.resize(@image, '10x10<')
+        image = @processor._resize(@image, '10x10<')
         image.should have_width(280)
         image.should have_height(355)
       end
 
       it "should resize if the image is smaller than specified" do
-        image = @processor.resize(@image, '400x400<')
+        image = @processor._resize(@image, '400x400<')
         image.should have_width(315)
         image.should have_height(400)
       end
@@ -130,6 +130,58 @@ describe ImageResizer::Processor do
     end
 
   end
+
+
+  describe "#resize(temp_object, width, height)" do
+    context "when both the width and the height are non-zero" do
+      it "should crop and scale to the specified dimensions" do
+        @processor.should_receive(:resize_and_crop).with(@image, :width => 77, :height => 33, :gravity => 'c')
+        @processor.resize(@image, :width => 77, :height => 33)
+      end
+
+      context "with the crop_from_top_if_portrait option" do
+        context "with a portrait oriented image" do
+          it "should resize and crop with a gravity of 'n'" do
+            @processor.should_receive(:resize_and_crop).with(@image, :width => 77, :height => 33, :gravity => 'n')
+            @processor.resize(@image, :width => 77, :height => 33, :crop_from_top_if_portrait => true)
+          end
+        end
+
+        context "with a landscape oriented image" do
+          it "should resize and crop with a gravity of 'c'" do
+            @image = ImageResizer::TempObject.new(SAMPLES_DIR.join('landscape.png')) # 355x280
+            @processor.should_receive(:resize_and_crop).with(@image, :width => 77, :height => 33, :gravity => 'c')
+            @processor.resize(@image, :width => 77, :height => 33, :crop_from_top_if_portrait => true)
+          end
+        end
+      end
+    end
+
+    context "when the height is 0" do
+      it "should restrict only in the horizontal dimension" do
+        @processor.should_receive(:_resize).with(@image, '77x')
+        @processor.resize(@image, :width => 77, :height => 0)
+      end
+    end
+
+    context "when the width is 0" do
+      it "should restrict only in the vertical dimension" do
+        @processor.should_receive(:_resize).with(@image, 'x33')
+        @processor.resize(@image, :width => 0, :height => 33)
+      end
+    end
+
+    context "when both height and width are 0" do
+      it "should return the original image file" do
+        @image.should_receive(:file)
+        @processor.should_not_receive(:_resize)
+        @processor.resize(@image, :width => 0, :height => 0)
+      end
+    end
+  end
+
+
+
 
   describe "#resize_and_crop_around_point(:point => [x%, y%], :width => w, :height => h" do
     context "when the source image is portrait, but the requested ratio is landscape" do

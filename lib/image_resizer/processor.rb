@@ -22,7 +22,30 @@ module ImageResizer
     include Configurable
     include Utils
 
-    def resize(temp_object, geometry)
+
+    def resize(temp_object, options)
+      width = options[:width]
+      height = options[:height]
+
+      if height == 0 && width == 0
+        temp_object.file
+      elsif height == 0
+        _resize(temp_object, "#{width}x")
+      elsif width == 0
+        _resize(temp_object, "x#{height}")
+      else
+        if options[:crop_from_top_if_portrait]
+          analyzer = ImageResizer::Analyzer.new
+          center_of_gravity = analyzer.aspect_ratio(temp_object) >= 1 ? 'c' : 'n'
+        else
+          center_of_gravity = 'c'
+        end
+
+        resize_and_crop(temp_object, :width => width.to_i, :height => height.to_i, :gravity => center_of_gravity)
+      end
+    end
+
+    def _resize(temp_object, geometry)
       convert(temp_object, "-resize #{geometry}")
     end
 
