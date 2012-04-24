@@ -157,25 +157,31 @@ describe ImageResizer::Processor do
       end
     end
 
-    context "when the height is 0" do
+    context "when the height is 0, nil, or not present" do
       it "should restrict only in the horizontal dimension" do
-        @processor.should_receive(:_resize).with(@image, '77x')
+        @processor.should_receive(:_resize).with(@image, '77x').exactly(3).times
         @processor.resize(@image, :width => 77, :height => 0)
+        @processor.resize(@image, :width => 77, :height => nil)
+        @processor.resize(@image, :width => 77)
       end
     end
 
-    context "when the width is 0" do
+    context "when the width is 0, nil, or not present" do
       it "should restrict only in the vertical dimension" do
-        @processor.should_receive(:_resize).with(@image, 'x33')
+        @processor.should_receive(:_resize).with(@image, 'x33').exactly(3).times
         @processor.resize(@image, :width => 0, :height => 33)
+        @processor.resize(@image, :width => nil, :height => 33)
+        @processor.resize(@image, :height => 33)
       end
     end
 
-    context "when both height and width are 0" do
+    context "when both height and width are 0, nil, or not present" do
       it "should return the original image file" do
-        @image.should_receive(:file)
+        @image.should_receive(:file).exactly(3).times
         @processor.should_not_receive(:_resize)
         @processor.resize(@image, :width => 0, :height => 0)
+        @processor.resize(@image, :width => nil, :height => nil)
+        @processor.resize(@image)
       end
     end
   end

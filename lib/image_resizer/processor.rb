@@ -23,9 +23,9 @@ module ImageResizer
     include Utils
 
 
-    def resize(temp_object, options)
-      width = options[:width]
-      height = options[:height]
+    def resize(temp_object, options={})
+      width = options[:width].to_i
+      height = options[:height].to_i
 
       if height == 0 && width == 0
         temp_object.file
