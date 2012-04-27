@@ -29,10 +29,13 @@ width = 320
 
 height = 400
 point = [0.9, 0.1]
-processed = processor.resize_and_crop_around_point(temp_object,
-                                  :point => point,
-                                  :width => width,
-                                  :height => height
-                                  )
+# processed = processor.resize_and_crop_around_point(temp_object,
+#                                   :point => point,
+#                                   :width => width,
+#                                   :height => height
+#                                   )
+
+processed = processor.generate_icon(temp_object)
+modified_path = File.expand_path(File.dirname(__FILE__)) + '/tmp/test_output.ico'
 
 File.open(modified_path, 'wb') { |f| f.write(File.read(processed)) }

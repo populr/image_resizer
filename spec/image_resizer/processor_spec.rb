@@ -585,6 +585,39 @@ describe ImageResizer::Processor do
       image = ImageResizer::TempObject.new(SAMPLES_DIR.join('white pixel.png'))
       @processor.convert(image, "-resize 2x2!").should have_width(2)
     end
+
+    it "should allow an array of image files as the first parameter" do
+      image1 = double('image1')
+      image2 = double('image2')
+      tempfile = double('tempfile')
+
+      image1.stub(:path).and_return('hello world')
+      image2.stub(:path).and_return('goodbye')
+      tempfile.stub(:path).and_return('output path')
+
+      @processor.stub(:new_tempfile).and_return(tempfile)
+      @processor.should_receive(:run).with('convert', "'hello world' 'goodbye'  'output path'")
+      image = @processor.convert([image1, image2])
+    end
   end
 
+
+  describe "#generate_icon" do
+    it "it should create a multi-sized ico file from the source file" do
+      two_fifty_six_png = double('256')
+      @processor.should_receive(:convert).with(@image, '-resize 256x256! -transparent white', :png).and_return([two_fifty_six_png, :format => :png])
+      sixteen_png = double('16')
+      @processor.should_receive(:convert).with(two_fifty_six_png, '-resize 16x16! -transparent white').and_return(sixteen_png)
+      thirty_two_png = double('32')
+      @processor.should_receive(:convert).with(two_fifty_six_png, '-resize 32x32! -transparent white').and_return(thirty_two_png)
+      sixty_four_png = double('64')
+      @processor.should_receive(:convert).with(two_fifty_six_png, '-resize 64x64! -transparent white').and_return(sixty_four_png)
+      one_twenty_eight_png = double('128')
+      @processor.should_receive(:convert).with(two_fifty_six_png, '-resize 128x128! -transparent white').and_return(one_twenty_eight_png)
+      ico = double('ico')
+      @processor.should_receive(:convert).with([sixteen_png, thirty_two_png, sixty_four_png, one_twenty_eight_png, two_fifty_six_png],
+                                                '', :ico).and_return([ico, :format => :ico])
+      @processor.generate_icon(@image)
+    end
+  end
 end

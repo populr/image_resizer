@@ -13,7 +13,13 @@ module ImageResizer
 
     def convert(temp_object=nil, args='', format=nil)
       tempfile = new_tempfile(format)
-      run convert_command, %(#{quote(temp_object.path) if temp_object} #{args} #{quote(tempfile.path)})
+      if temp_object.is_a?(Array)
+        paths = temp_object.map { |obj| quote(obj.path) }.join(' ')
+        run convert_command, %(#{paths} #{args} #{quote(tempfile.path)})
+      else
+        run convert_command, %(#{quote(temp_object.path) if temp_object} #{args} #{quote(tempfile.path)})
+      end
+
       tempfile
     end
 

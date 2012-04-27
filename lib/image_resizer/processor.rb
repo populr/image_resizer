@@ -216,5 +216,14 @@ module ImageResizer
       format ? [super, {:format => format.to_sym}] : super
     end
 
+    def generate_icon(temp_object)
+      two_fifty_six_png = convert(temp_object, '-resize 256x256! -transparent white', :png).first
+      sixteen_png = convert(two_fifty_six_png, '-resize 16x16! -transparent white')
+      thirty_two_png = convert(two_fifty_six_png, '-resize 32x32! -transparent white')
+      sixty_four_png = convert(two_fifty_six_png, '-resize 64x64! -transparent white')
+      one_twenty_eight_png = convert(two_fifty_six_png, '-resize 128x128! -transparent white')
+      convert([sixteen_png, thirty_two_png, sixty_four_png, one_twenty_eight_png, two_fifty_six_png],
+               '', :ico).first
+    end
   end
 end
