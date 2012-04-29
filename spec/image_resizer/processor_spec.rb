@@ -621,14 +621,10 @@ describe ImageResizer::Processor do
     end
 
     it "it should accept a :max_resolution option to limit the number of formats" do
-      two_fifty_six_png = double('256')
-      @processor.should_receive(:convert).with(@image, '-resize 256x256! -transparent white', :png).and_return([two_fifty_six_png, :format => :png])
-      sixteen_png = double('16')
-      @processor.should_receive(:convert).with(two_fifty_six_png, '-resize 16x16! -transparent white').and_return(sixteen_png)
       thirty_two_png = double('32')
-      @processor.should_receive(:convert).with(two_fifty_six_png, '-resize 32x32! -transparent white').and_return(thirty_two_png)
-
-      @processor.should_not_receive(:convert).with(two_fifty_six_png, '-resize 64x64! -transparent white')
+      @processor.should_receive(:convert).with(@image, '-resize 32x32! -transparent white', :png).and_return([thirty_two_png, :format => :png])
+      sixteen_png = double('16')
+      @processor.should_receive(:convert).with(thirty_two_png, '-resize 16x16! -transparent white').and_return(sixteen_png)
 
       ico = double('ico')
       @processor.should_receive(:convert).with([sixteen_png, thirty_two_png],

@@ -217,15 +217,15 @@ module ImageResizer
     end
 
     def generate_icon(temp_object, options={})
-      two_fifty_six_png = convert(temp_object, '-resize 256x256! -transparent white', :png).first
+      max_resolution = [options[:max_resolution] || 256, 256].min
+      largest_png = convert(temp_object, "-resize #{max_resolution}x#{max_resolution}! -transparent white", :png).first
       formats = []
       current = 16
-      max_resolution = options[:max_resolution] || 256
-      while current <= max_resolution && current < 256
-        formats << convert(two_fifty_six_png, "-resize #{current}x#{current}! -transparent white")
+      while current < max_resolution
+        formats << convert(largest_png, "-resize #{current}x#{current}! -transparent white")
         current *= 2
       end
-      formats << two_fifty_six_png if max_resolution >= 256
+      formats << largest_png
       convert(formats, '', :ico).first
     end
   end
