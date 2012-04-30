@@ -51,6 +51,9 @@ Example:
     tempfile = processor.generate_icon(temp_object)
     File.open(path_to_output_file, 'wb') { |f| f.write(File.read(tempfile)) }
 
+Any of the resizing and cropping methods accept an optional :format option that determines the output format of the file (:png, :jpg, etc.). If omitted, the original file format is maintained.
+
+
 Credits
 =======
 

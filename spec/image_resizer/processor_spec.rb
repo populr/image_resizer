@@ -75,6 +75,11 @@ describe ImageResizer::Processor do
 
   describe "crop" do # Difficult to test here other than dimensions
 
+    it "should accept a format option" do
+      @processor.should_receive(:convert).with(@image, anything(), :png)
+      @processor.crop(@image, :width => '100', :height => '100', :format => :png)
+    end
+
     it "should not crop if no args given" do
       image = @processor.crop(@image)
       image.should have_width(280)
@@ -132,17 +137,23 @@ describe ImageResizer::Processor do
   end
 
 
-  describe "#resize(temp_object, width, height)" do
+  describe "#resize(temp_object, options)" do
+
     context "when both the width and the height are non-zero" do
       it "should crop and scale to the specified dimensions" do
-        @processor.should_receive(:resize_and_crop).with(@image, :width => 77, :height => 33, :gravity => 'c')
+        @processor.should_receive(:resize_and_crop).with(@image, hash_including(:width => 77, :height => 33, :gravity => 'c'))
         @processor.resize(@image, :width => 77, :height => 33)
+      end
+
+      it "should accept a format option" do
+        @processor.should_receive(:resize_and_crop).with(@image, hash_including(:format => :png))
+        @processor.resize(@image, :width => 77, :height => 33, :format => :png)
       end
 
       context "with the crop_from_top_if_portrait option" do
         context "with a portrait oriented image" do
           it "should resize and crop with a gravity of 'n'" do
-            @processor.should_receive(:resize_and_crop).with(@image, :width => 77, :height => 33, :gravity => 'n')
+            @processor.should_receive(:resize_and_crop).with(@image, hash_including(:width => 77, :height => 33, :gravity => 'n'))
             @processor.resize(@image, :width => 77, :height => 33, :crop_from_top_if_portrait => true)
           end
         end
@@ -150,7 +161,7 @@ describe ImageResizer::Processor do
         context "with a landscape oriented image" do
           it "should resize and crop with a gravity of 'c'" do
             @image = ImageResizer::TempObject.new(SAMPLES_DIR.join('landscape.png')) # 355x280
-            @processor.should_receive(:resize_and_crop).with(@image, :width => 77, :height => 33, :gravity => 'c')
+            @processor.should_receive(:resize_and_crop).with(@image, hash_including(:width => 77, :height => 33, :gravity => 'c'))
             @processor.resize(@image, :width => 77, :height => 33, :crop_from_top_if_portrait => true)
           end
         end
@@ -159,29 +170,44 @@ describe ImageResizer::Processor do
 
     context "when the height is 0, nil, or not present" do
       it "should restrict only in the horizontal dimension" do
-        @processor.should_receive(:_resize).with(@image, '77x').exactly(3).times
-        @processor.resize(@image, :width => 77, :height => 0)
+        @processor.should_receive(:_resize).with(@image, '77x', nil).exactly(3).times
+        @processor.resize(@image, :width => 77, :height => 0  )
         @processor.resize(@image, :width => 77, :height => nil)
         @processor.resize(@image, :width => 77)
+      end
+
+      it "should accept a format option" do
+        @processor.should_receive(:_resize).with(@image, '77x', :png)
+        @processor.resize(@image, :width => 77, :height => 0, :format => :png)
       end
     end
 
     context "when the width is 0, nil, or not present" do
       it "should restrict only in the vertical dimension" do
-        @processor.should_receive(:_resize).with(@image, 'x33').exactly(3).times
+        @processor.should_receive(:_resize).with(@image, 'x33', nil).exactly(3).times
         @processor.resize(@image, :width => 0, :height => 33)
         @processor.resize(@image, :width => nil, :height => 33)
         @processor.resize(@image, :height => 33)
+      end
+
+      it "should accept a format option" do
+        @processor.should_receive(:_resize).with(@image, 'x33', :png)
+        @processor.resize(@image, :width => 0, :height => 33, :format => :png)
       end
     end
 
     context "when both height and width are 0, nil, or not present" do
       it "should return the original image file" do
-        @image.should_receive(:file).exactly(3).times
+        @image.should_receive(:file).exactly(3).times.and_return('the_file')
         @processor.should_not_receive(:_resize)
-        @processor.resize(@image, :width => 0, :height => 0)
-        @processor.resize(@image, :width => nil, :height => nil)
-        @processor.resize(@image)
+        @processor.resize(@image, :width => 0, :height => 0).should == 'the_file'
+        @processor.resize(@image, :width => nil, :height => nil).should == 'the_file'
+        @processor.resize(@image).should == 'the_file'
+      end
+
+      it "should call convert with the target format" do
+        @processor.should_receive(:convert).with(@image, anything(), :png)
+        @processor.resize(@image, :width => 0, :height => 33, :format => :png)
       end
     end
   end
@@ -189,15 +215,15 @@ describe ImageResizer::Processor do
 
 
 
-  describe "#resize_and_crop_around_point(:point => [x%, y%], :width => w, :height => h" do
+  describe "#resize_and_crop_around_point(:point => [x%, y%], :width => w, :height => h)" do
     context "when the source image is portrait, but the requested ratio is landscape" do
       it "should call crop_to_frame_and_resize with a frame that is vertically centered on the focus point" do
         # original is 280px x 355px
         @processor.should_receive(:crop_to_frame_and_resize ).with(@image,
-                                                                  :width => 100,
-                                                                  :height => 60,
-                                                                  :upper_left => [0.0, 0.5 - 280 * 0.6 / 355 / 2.0],
-                                                                  :lower_right => [1.0, 0.5 + 280 * 0.6 / 355 / 2.0])
+                                                                  hash_including(:width => 100,
+                                                                                 :height => 60,
+                                                                                 :upper_left => [0.0, 0.5 - 280 * 0.6 / 355 / 2.0],
+                                                                                 :lower_right => [1.0, 0.5 + 280 * 0.6 / 355 / 2.0]))
         @processor.resize_and_crop_around_point(@image,
                                             :point => [0.5, 0.5],
                                             :width => 100,
@@ -205,14 +231,29 @@ describe ImageResizer::Processor do
                                           )
       end
 
+    it "should accept a format option" do
+      @processor.should_receive(:crop_to_frame_and_resize ).with(@image,
+                                                                :width => 100,
+                                                                :height => 60,
+                                                                :upper_left => [0.0, 0.5 - 280 * 0.6 / 355 / 2.0],
+                                                                :lower_right => [1.0, 0.5 + 280 * 0.6 / 355 / 2.0],
+                                                                :format => :png)
+      @processor.resize_and_crop_around_point(@image,
+                                          :point => [0.5, 0.5],
+                                          :width => 100,
+                                          :height => 60,
+                                          :format => :png
+                                        )
+    end
+
       context "when the focus point is too close to the top to be the vertical center" do
         it "should call crop_to_frame_and_resize with a frame that is pinned at the top of the image" do
           # original is 280px x 355px
           @processor.should_receive(:crop_to_frame_and_resize ).with(@image,
-                                                                    :width => 100,
-                                                                    :height => 60,
-                                                                    :upper_left => [0.0, 0.0],
-                                                                    :lower_right => [1.0, 280 * 0.6 / 355])
+                                                                    hash_including(:width => 100,
+                                                                                   :height => 60,
+                                                                                   :upper_left => [0.0, 0.0],
+                                                                                   :lower_right => [1.0, 280 * 0.6 / 355]))
           @processor.resize_and_crop_around_point(@image,
                                               :point => [0.5, 0.1],
                                               :width => 100,
@@ -225,10 +266,10 @@ describe ImageResizer::Processor do
         it "should call crop_to_frame_and_resize with a frame that is pinned at the bottom of the image" do
           # original is 280px x 355px
           @processor.should_receive(:crop_to_frame_and_resize ).with(@image,
-                                                                    :width => 100,
-                                                                    :height => 60,
-                                                                    :upper_left => [0.0, 1 - 280 * 0.6 / 355],
-                                                                    :lower_right => [1.0, 1.0])
+                                                                    hash_including(:width => 100,
+                                                                                   :height => 60,
+                                                                                   :upper_left => [0.0, 1 - 280 * 0.6 / 355],
+                                                                                   :lower_right => [1.0, 1.0]))
           @processor.resize_and_crop_around_point(@image,
                                               :point => [0.5, 0.9],
                                               :width => 100,
@@ -246,10 +287,10 @@ describe ImageResizer::Processor do
       it "should call crop_to_frame_and_resize with a frame that is vertically centered on the focus point" do
         # original is 355px x 280px
         @processor.should_receive(:crop_to_frame_and_resize ).with(@image,
-                                                                  :width => 60,
-                                                                  :height => 100,
-                                                                  :upper_left => [0.5 - 280 * 0.6 / 355 / 2.0, 0.0],
-                                                                  :lower_right => [0.5 + 280 * 0.6 / 355 / 2.0, 1.0])
+                                                                  hash_including(:width => 60,
+                                                                                 :height => 100,
+                                                                                 :upper_left => [0.5 - 280 * 0.6 / 355 / 2.0, 0.0],
+                                                                                 :lower_right => [0.5 + 280 * 0.6 / 355 / 2.0, 1.0]))
         @processor.resize_and_crop_around_point(@image,
                                             :point => [0.5, 0.5],
                                             :width => 60,
@@ -261,10 +302,10 @@ describe ImageResizer::Processor do
         it "should call crop_to_frame_and_resize with a frame that is pinned at the left of the image" do
           # original is 355px x 280px
           @processor.should_receive(:crop_to_frame_and_resize ).with(@image,
-                                                                    :width => 60,
-                                                                    :height => 100,
-                                                                    :upper_left => [0.0, 0.0],
-                                                                    :lower_right => [280 * 0.6 / 355, 1.0])
+                                                                    hash_including(:width => 60,
+                                                                                   :height => 100,
+                                                                                   :upper_left => [0.0, 0.0],
+                                                                                   :lower_right => [280 * 0.6 / 355, 1.0]))
           @processor.resize_and_crop_around_point(@image,
                                               :point => [0.1, 0.5],
                                               :width => 60,
@@ -277,10 +318,10 @@ describe ImageResizer::Processor do
         it "should call crop_to_frame_and_resize with a frame that is pinned at the right of the image" do
           # original is 355px x 280px
           @processor.should_receive(:crop_to_frame_and_resize ).with(@image,
-                                                                    :width => 60,
-                                                                    :height => 100,
-                                                                    :upper_left => [1.0 - 280 * 0.6 / 355, 0.0],
-                                                                    :lower_right => [1.0, 1.0])
+                                                                    hash_including(:width => 60,
+                                                                                   :height => 100,
+                                                                                   :upper_left => [1.0 - 280 * 0.6 / 355, 0.0],
+                                                                                   :lower_right => [1.0, 1.0]))
           @processor.resize_and_crop_around_point(@image,
                                               :point => [0.9, 0.5],
                                               :width => 60,
@@ -318,7 +359,7 @@ describe ImageResizer::Processor do
   describe "#crop_to_frame_and_resize(:upper_left => [x%, y%], :lower_right => [x%, y%], :width => w, :height => h" do
     it "should call #crop with the :x & :y and :width & :height expressed in pixels and :width and :height determined by the frame bounds (not the width and height we pass in), and :resize expressed as widthxheight" do
       # original is 280px x 355px
-      @processor.should_receive(:convert).with(@image, "-crop 140x178+56+107 -resize 70x89 +repage")
+      @processor.should_receive(:convert).with(@image, "-crop 140x178+56+107 -resize 70x89 +repage", nil)
       @processor.crop_to_frame_and_resize(@image,
                                           :upper_left => [0.20, 0.30],
                                           :lower_right => [0.70, 0.80],
@@ -327,10 +368,21 @@ describe ImageResizer::Processor do
                                         )
     end
 
+    it "should accept a format parameter" do
+      @processor.should_receive(:convert).with(@image, "-crop 140x178+56+107 -resize 70x89 +repage", :png)
+      @processor.crop_to_frame_and_resize(@image,
+                                          :upper_left => [0.20, 0.30],
+                                          :lower_right => [0.70, 0.80],
+                                          :width => 70,
+                                          :height => 89,
+                                          :format => :png
+                                        )
+    end
+
     context "when width is 0, nil, or not present as an option" do
       it "should use the ratio defined by the upper_left and lower_right points to determine the width from the height" do
         # original is 280px x 355px
-        @processor.should_receive(:convert).with(@image, "-crop 140x178+56+107 -resize 70x89 +repage").exactly(3).times
+        @processor.should_receive(:convert).with(@image, "-crop 140x178+56+107 -resize 70x89 +repage", nil).exactly(3).times
         @processor.crop_to_frame_and_resize(@image,
                                             :upper_left => [0.20, 0.30],
                                             :lower_right => [0.70, 0.80],
@@ -357,7 +409,7 @@ describe ImageResizer::Processor do
     context "when height is 0, nil, or not present as an option" do
       it "should use the ratio defined by the upper_left and lower_right points to determine the height from the width" do
         # original is 280px x 355px
-        @processor.should_receive(:convert).with(@image, "-crop 140x178+56+107 -resize 70x89 +repage").exactly(3).times
+        @processor.should_receive(:convert).with(@image, "-crop 140x178+56+107 -resize 70x89 +repage", nil).exactly(3).times
         @processor.crop_to_frame_and_resize(@image,
                                             :upper_left => [0.20, 0.30],
                                             :lower_right => [0.70, 0.80],
@@ -443,17 +495,29 @@ describe ImageResizer::Processor do
       image.should have_height(355)
     end
 
-    it "should do nothing if called without width and height" do
-      image = @processor.resize_and_crop(@image)
-      image.should have_width(280)
-      image.should have_height(355)
-      image.should eq @image
+    context "without a width and height option" do
+      it "should do nothing if called without width and height" do
+        image = @processor.resize_and_crop(@image)
+        image.should have_width(280)
+        image.should have_height(355)
+        image.should eq @image
+      end
+
+      it "should convert the image" do
+        @processor.should_receive(:convert).with(@image, '', :png)
+        @processor.resize_and_crop(@image, :format => :png)
+      end
     end
 
     it "should crop to the correct dimensions" do
       image = @processor.resize_and_crop(@image, :width => '100', :height => '100')
       image.should have_width(100)
       image.should have_height(100)
+    end
+
+    it "should accept a format option" do
+      @processor.should_receive(:crop).with(@image, hash_including(:format => :png))
+      image = @processor.resize_and_crop(@image, :width => '100', :height => '100', :format => :png)
     end
 
     it "should actually resize before cropping" do
@@ -569,11 +633,10 @@ describe ImageResizer::Processor do
     end
 
     it "should allow for general convert commands with added format" do
-      image, extra = @processor.convert(@image, '-scale 56x71', :gif)
+      image = @processor.convert(@image, '-scale 56x71', :gif)
       image.should have_width(56)
       image.should have_height(71)
       image.should have_format('gif')
-      extra[:format].should == :gif
     end
 
     it "should work for commands with parenthesis" do
@@ -604,7 +667,7 @@ describe ImageResizer::Processor do
   describe "#generate_icon" do
     it "it should create a multi-sized ico file from the source file" do
       two_fifty_six_png = double('256')
-      @processor.should_receive(:convert).with(@image, '-resize 256x256! -transparent white', :png).and_return([two_fifty_six_png, :format => :png])
+      @processor.should_receive(:convert).with(@image, '-resize 256x256! -transparent white', :png).and_return(two_fifty_six_png)
       sixteen_png = double('16')
       @processor.should_receive(:convert).with(two_fifty_six_png, '-resize 16x16! -transparent white').and_return(sixteen_png)
       thirty_two_png = double('32')
@@ -616,19 +679,19 @@ describe ImageResizer::Processor do
 
       ico = double('ico')
       @processor.should_receive(:convert).with([sixteen_png, thirty_two_png, sixty_four_png, one_twenty_eight_png, two_fifty_six_png],
-                                                '', :ico).and_return([ico, :format => :ico])
+                                                '', :ico).and_return(ico)
       @processor.generate_icon(@image)
     end
 
     it "it should accept a :max_resolution option to limit the number of formats" do
       thirty_two_png = double('32')
-      @processor.should_receive(:convert).with(@image, '-resize 32x32! -transparent white', :png).and_return([thirty_two_png, :format => :png])
+      @processor.should_receive(:convert).with(@image, '-resize 32x32! -transparent white', :png).and_return(thirty_two_png)
       sixteen_png = double('16')
       @processor.should_receive(:convert).with(thirty_two_png, '-resize 16x16! -transparent white').and_return(sixteen_png)
 
       ico = double('ico')
       @processor.should_receive(:convert).with([sixteen_png, thirty_two_png],
-                                                '', :ico).and_return([ico, :format => :ico])
+                                                '', :ico).and_return(ico)
       @processor.generate_icon(@image, :max_resolution => 32)
     end
   end

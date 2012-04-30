@@ -30,9 +30,9 @@ module ImageResizer
       if height == 0 && width == 0
         temp_object.file
       elsif height == 0
-        _resize(temp_object, "#{width}x")
+        _resize(temp_object, "#{width}x", options[:format])
       elsif width == 0
-        _resize(temp_object, "x#{height}")
+        _resize(temp_object, "x#{height}", options[:format])
       else
         if options[:crop_from_top_if_portrait]
           analyzer = ImageResizer::Analyzer.new
@@ -41,12 +41,12 @@ module ImageResizer
           center_of_gravity = 'c'
         end
 
-        resize_and_crop(temp_object, :width => width.to_i, :height => height.to_i, :gravity => center_of_gravity)
+        resize_and_crop(temp_object, :width => width.to_i, :height => height.to_i, :gravity => center_of_gravity, :format => options[:format])
       end
     end
 
-    def _resize(temp_object, geometry)
-      convert(temp_object, "-resize #{geometry}")
+    def _resize(temp_object, geometry, format=nil)
+      convert(temp_object, "-resize #{geometry}", format)
     end
 
     def auto_orient(temp_object)
@@ -66,7 +66,7 @@ module ImageResizer
       resize = opts[:resize] ? "-resize #{opts[:resize]} " : ''
       gravity = gravity ? "-gravity #{gravity} " : ''
 
-      convert(temp_object, "#{resize}#{gravity}-crop #{width}x#{height}#{x}#{y} #{repage}")
+      convert(temp_object, "#{resize}#{gravity}-crop #{width}x#{height}#{x}#{y} #{repage}", opts[:format])
     end
 
     def resize_and_crop_around_point(temp_object, options)
@@ -119,7 +119,8 @@ module ImageResizer
                               :upper_left => [upper_left_x_percent, upper_left_y_percent],
                               :lower_right => [lower_right_x_percent, lower_right_y_percent],
                               :width => desired_width,
-                              :height => desired_height
+                              :height => desired_height,
+                              :format => options[:format]
                               )
     end
 
@@ -155,7 +156,7 @@ module ImageResizer
       end
 
 
-      convert(temp_object, "-crop #{frame_width}x#{frame_height}+#{upper_left_x}+#{upper_left_y} -resize #{desired_width}x#{desired_height} +repage")
+      convert(temp_object, "-crop #{frame_width}x#{frame_height}+#{upper_left_x}+#{upper_left_y} -resize #{desired_width}x#{desired_height} +repage", options[:format])
     end
 
     def flip(temp_object)
@@ -173,7 +174,11 @@ module ImageResizer
 
     def resize_and_crop(temp_object, opts={})
       if !opts[:width] && !opts[:height]
-        return temp_object
+        if opts[:format]
+          return convert(temp_object, '', opts[:format])
+        else
+          return temp_object
+        end
       elsif !opts[:width] || !opts[:height]
         attrs          = identify(temp_object)
         opts[:width]   ||= attrs[:width]
@@ -213,12 +218,12 @@ module ImageResizer
     end
 
     def convert(temp_object, args='', format=nil)
-      format ? [super, {:format => format.to_sym}] : super
+      super
     end
 
     def generate_icon(temp_object, options={})
       max_resolution = [options[:max_resolution] || 256, 256].min
-      largest_png = convert(temp_object, "-resize #{max_resolution}x#{max_resolution}! -transparent white", :png).first
+      largest_png = convert(temp_object, "-resize #{max_resolution}x#{max_resolution}! -transparent white", :png)
       formats = []
       current = 16
       while current < max_resolution
@@ -226,7 +231,7 @@ module ImageResizer
         current *= 2
       end
       formats << largest_png
-      convert(formats, '', :ico).first
+      convert(formats, '', :ico)
     end
   end
 end
