@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = "image_resizer"
-  s.version = "0.3.0"
+  s.version = "0.4.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Daniel Nelson"]
-  s.date = "2012-04-30"
+  s.date = "2013-02-15"
   s.description = "Image resizing gem (requires ImageMagick)"
   s.email = "daniel@populr.me"
   s.extra_rdoc_files = [
@@ -33,7 +33,6 @@ Gem::Specification.new do |s|
     "lib/image_resizer/has_filename.rb",
     "lib/image_resizer/loggable.rb",
     "lib/image_resizer/processor.rb",
-    "lib/image_resizer/shell.rb",
     "lib/image_resizer/temp_object.rb",
     "lib/image_resizer/utils.rb",
     "samples/DSC02119.JPG",
@@ -52,7 +51,6 @@ Gem::Specification.new do |s|
     "spec/image_resizer/has_filename_spec.rb",
     "spec/image_resizer/loggable_spec.rb",
     "spec/image_resizer/processor_spec.rb",
-    "spec/image_resizer/shell_spec.rb",
     "spec/image_resizer/temp_object_spec.rb",
     "spec/spec_helper.rb",
     "spec/support/argument_matchers.rb",
@@ -70,12 +68,14 @@ Gem::Specification.new do |s|
     s.specification_version = 3
 
     if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
+      s.add_runtime_dependency(%q<cocaine>, [">= 0"])
       s.add_development_dependency(%q<rspec>, [">= 0"])
       s.add_development_dependency(%q<jeweler>, [">= 0"])
       s.add_development_dependency(%q<pry>, [">= 0"])
       s.add_development_dependency(%q<pry-nav>, [">= 0"])
       s.add_development_dependency(%q<pry-stack_explorer>, [">= 0"])
     else
+      s.add_dependency(%q<cocaine>, [">= 0"])
       s.add_dependency(%q<rspec>, [">= 0"])
       s.add_dependency(%q<jeweler>, [">= 0"])
       s.add_dependency(%q<pry>, [">= 0"])
@@ -83,6 +83,7 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<pry-stack_explorer>, [">= 0"])
     end
   else
+    s.add_dependency(%q<cocaine>, [">= 0"])
     s.add_dependency(%q<rspec>, [">= 0"])
     s.add_dependency(%q<jeweler>, [">= 0"])
     s.add_dependency(%q<pry>, [">= 0"])
