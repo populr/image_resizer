@@ -46,7 +46,7 @@ module ImageResizer
     end
 
     def _resize(temp_object, geometry, format=nil)
-      convert(temp_object, "-resize #{geometry}", format)
+      convert(temp_object, "-resize '#{geometry}'", format)
     end
 
     def auto_orient(temp_object)
@@ -192,7 +192,7 @@ module ImageResizer
     end
 
     def rotate(temp_object, amount, opts={})
-      convert(temp_object, "-rotate #{amount}#{opts[:qualifier]}")
+      convert(temp_object, "-rotate '#{amount}#{opts[:qualifier]}'")
     end
 
     def strip(temp_object)

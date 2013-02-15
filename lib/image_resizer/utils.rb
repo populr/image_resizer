@@ -1,9 +1,9 @@
 require 'tempfile'
+require 'cocaine'
 
 module ImageResizer
   module Utils
 
-    include Shell
     include Loggable
     include Configurable
     configurable_attr :convert_command, "convert"
@@ -13,12 +13,23 @@ module ImageResizer
 
     def convert(temp_object=nil, args='', format=nil)
       tempfile = new_tempfile(format)
+      interpolation_data = {}
+
       if temp_object.is_a?(Array)
-        paths = temp_object.map { |obj| quote(obj.path) }.join(' ')
-        run convert_command, %(#{paths} #{args} #{quote(tempfile.path)})
+        temp_object.length.times { |index| interpolation_data["input#{index}".to_sym] = temp_object[index].path }
+        keys = interpolation_data.keys.map { |s| ":#{s}" }
+        args = "#{keys.join(' ')} #{args} :output"
+      elsif temp_object
+        interpolation_data[:input] = temp_object.path
+        args = ":input #{args} :output"
       else
-        run convert_command, %(#{quote(temp_object.path) if temp_object} #{args} #{quote(tempfile.path)})
+        args = "#{args} :output"
       end
+
+      interpolation_data[:output] = tempfile.path
+
+      line = Cocaine::CommandLine.new(convert_command, args)
+      line.run(interpolation_data)
 
       tempfile
     end
@@ -36,7 +47,8 @@ module ImageResizer
     end
 
     def raw_identify(temp_object, args='')
-      run identify_command, "#{args} #{quote(temp_object.path)}"
+      line = Cocaine::CommandLine.new(identify_command, "#{args} :input")
+      line.run(:input => temp_object.path)
     end
 
     def new_tempfile(ext=nil)

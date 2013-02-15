@@ -659,7 +659,9 @@ describe ImageResizer::Processor do
       tempfile.stub(:path).and_return('output path')
 
       @processor.stub(:new_tempfile).and_return(tempfile)
-      @processor.should_receive(:run).with('convert', "'hello world' 'goodbye'  'output path'")
+      line = double(:line)
+      Cocaine::CommandLine.should_receive(:new).with('convert', ":input0 :input1  :output").and_return(line)
+      line.should_receive(:run).with(:input0 => 'hello world', :input1 => 'goodbye', :output =>  'output path')
       image = @processor.convert([image1, image2])
     end
   end
