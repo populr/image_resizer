@@ -37,19 +37,19 @@ describe ImageResizer::Analyzer do
     end
   end
 
-  describe "#number_of_colours"
+  describe "#number_of_colours" do
     it "should return the number of colours" do
       @analyzer.number_of_colours(@image).should == 34703
     end
   end
 
-  describe "#depth"
+  describe "#depth" do
     it "should return the depth" do
       @analyzer.depth(@image).should == 8
     end
   end
 
-  describe "#format"
+  describe "#format" do
     it "should return the format" do
       @analyzer.format(@image).should == :png
     end
@@ -66,7 +66,7 @@ describe ImageResizer::Analyzer do
     end
   end
 
-  describe "#image?"
+  describe "#image?" do
     it "should say if it's an image" do
       @analyzer.image?(@image).should == true
     end
