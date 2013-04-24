@@ -46,6 +46,10 @@ module ImageResizer
       }
     end
 
+    def verbose_identify(temp_object)
+      raw_identify(temp_object, '-verbose')
+    end
+
     def raw_identify(temp_object, args='')
       line = Cocaine::CommandLine.new(identify_command, "#{args} :input")
       line.run(:input => temp_object.path)

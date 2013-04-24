@@ -49,6 +49,21 @@ describe ImageResizer::Analyzer do
     end
   end
 
+  describe "#quality" do
+    context "when the image is a jpeg" do
+      it "should return the depth" do
+        @image = ImageResizer::TempObject.new(SAMPLES_DIR.join('beach.jpg'))
+        @analyzer.quality(@image).should == 92
+      end
+    end
+
+    context "when the image is a png" do
+      it "should return 0" do
+        @analyzer.quality(@image).should == 0
+      end
+    end
+  end
+
   describe "#format" do
     it "should return the format" do
       @analyzer.format(@image).should == :png

@@ -33,6 +33,14 @@ module ImageResizer
       identify(temp_object)[:depth]
     end
 
+    def quality(temp_object)
+      if match = verbose_identify(temp_object).match(/^\s*Quality: (\d+)$/)
+        match[1].to_i
+      else
+        0
+      end
+    end
+
     def number_of_colours(temp_object)
       details = raw_identify(temp_object, '-verbose -unique')
       details[/Colors: (\d+)/, 1].to_i
