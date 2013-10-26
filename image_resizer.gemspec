@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = "image_resizer"
-  s.version = "0.5.0"
+  s.version = "0.5.1"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Daniel Nelson"]
-  s.date = "2013-04-24"
+  s.date = "2013-10-26"
   s.description = "Image resizing gem (requires ImageMagick)"
   s.email = "daniel@populr.me"
   s.extra_rdoc_files = [
@@ -61,7 +61,7 @@ Gem::Specification.new do |s|
   s.homepage = "http://github.com/populr/image_resizer"
   s.licenses = ["MIT"]
   s.require_paths = ["lib"]
-  s.rubygems_version = "1.8.10"
+  s.rubygems_version = "1.8.25"
   s.summary = "Image resizing gem (requires ImageMagick)"
 
   if s.respond_to? :specification_version then
